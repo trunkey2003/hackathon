@@ -45,15 +45,15 @@ router.get('/user', userController.validateTokenCookie, userController.getUser);
 
 //room
 router.get('/room', roomController.getRoom);
-router.post('/room', userController.validateTokenCookie, userController.validateAddRoom, roomController.addRoom);
-router.put('/room', roomController.modifyRoom);
+router.post('/room', userController.validateTokenCookie, userController.validateAddRoom, upload.array('images', 3), roomController.addRoom);
+router.put('/room',  roomController.modifyRoom);
 
 //booking
 router.get('/booking', bookingController.getBooking);
 router.post('/booking', bookingController.addBooking);
 
 //upload file
-router.post('/uploadfile', upload.array('images', 3), s3Controller.uploadImage);
+// router.post('/uploadfile', upload.array('images', 3), s3Controller.uploadImage);
 
 /* GET users listing. */
 // router.get('/user/:username/songs', userController.validateTokenCookie ,userController.validateUser ,userController.getUserSongs);
