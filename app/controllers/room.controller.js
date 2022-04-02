@@ -167,7 +167,7 @@ class RoomController {
             });
             return response.json(); // parses JSON response into native JavaScript objects
         }
-        postData('http://3.211.169.198/tagging', { base64_image_arr: base64Arr }).then((data) =>{
+        postData('http://3.211.169.198/simmilarly', { user_image: base64Arr }).then((data) =>{
             res.status(200).send(data);
         })
         .catch(() => {
