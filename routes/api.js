@@ -47,6 +47,7 @@ router.get('/user', userController.validateTokenCookie, userController.getUser);
 router.get('/room', roomController.getRoom);
 router.get('/all-rooms', roomController.getAllRooms);
 router.post('/room', userController.validateTokenCookie, userController.validateAddRoom, upload.array('images', 3), roomController.addRoom);
+router.post('/search-room', upload.array('images', 1), roomController.userUpload);
 router.put('/room',  roomController.modifyRoom);
 
 //booking

@@ -123,7 +123,7 @@ class RoomController {
             )
     }
 
-    getAllRooms(req, res){
+    getAllRooms(req, res) {
         room.find(
             {}
         ).then((room) => {
@@ -132,6 +132,25 @@ class RoomController {
             .catch(() =>
                 res.status(500).send({ message: "Cannot get all rooms" })
             )
+    }
+
+    userUpload(req, res){
+        if (!req.files) {
+            res.status(403).send({ message: "please upload your file !!" });
+            return;
+        }
+        const base64Arr = [];
+        function _arrayBufferToBase64(buffer) {
+            var binary = '';
+            var bytes = new Uint8Array(buffer);
+            var len = bytes.byteLength;
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+        base64Arr.push(_arrayBufferToBase64(req.files[0].buffer));
+        res.send(base64Arr);
     }
 
     modifyRoom(req, res) {
