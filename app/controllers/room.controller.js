@@ -106,7 +106,7 @@ class RoomController {
 
         } catch (e) {
             console.log(e);
-            res.status(403).send({ message: "cannot upload your image to server" });
+            res.status(403).json(JSON.stringify(e));
         }
     }
 
