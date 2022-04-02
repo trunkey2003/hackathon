@@ -6,37 +6,25 @@ const upload = multer({
   limits: {
     fileSize: 8 * 1024 * 1024,
   },
-  fileFilter: function(_req, file, cb){
+  fileFilter: function (_req, file, cb) {
     checkFileType(file, cb);
   }
 });
 
-function checkFileType(files, cb){
-  var validated = true;
-
-  for (let i = 0; i < files.length; i++){
-    var arr = files[i].originalname.split('.');
-    var extension = arr[arr.length - 1];
-    // Allowed ext
-    const filetypes = ['jpeg','jpg','png','gif','webp'];
-  
-    // Check ext == image types in arr 
-    filetypes.forEach((type) => {
-      if (extension != type) validated = false;
-    })
-    if (!validated) {
-      cb('Error: Images Only!');
-      return;
+function checkFileType(file, cb) {
+  const arr = file.originalname.split('.');
+  const extension = arr[arr.length - 1];
+  const filetypes = ['jpeg', 'jpg', 'png', 'gif', 'webp'];
+  const validatedExtension = (extension, filetypes) =>{
+    for (let i = 0; i < filetypes.length; i++) {
+      if (filetypes[i] == extension) {
+        return true;
+      }
     }
+    return cb(`Extension ${extension} is not allowed`);
   };
-  
-  
-
-  if(validated){
-    return cb(null,true);
-  } else {
-    cb('Error: Images Only!');
-  }
+  const result = validatedExtension(extension, filetypes);
+  return cb(null, true);
 }
 
 
@@ -46,6 +34,7 @@ const userController = require('../app/controllers/user.controller');
 const roomController = require('../app/controllers/room.controller');
 const bookingController = require('../app/controllers/booking.controller');
 const s3Controller = require('../app/controllers/s3.controller');
+const { validate } = require('../app/models/user.model');
 // const Zingmp3Controller = require('../app/controllers/zingmp3.controller');
 
 //user
@@ -56,7 +45,7 @@ router.get('/user', userController.validateTokenCookie, userController.getUser);
 
 //room
 router.get('/room', roomController.getRoom);
-router.post('/room', userController.validateTokenCookie, userController.validateAddRoom ,roomController.addRoom);
+router.post('/room', userController.validateTokenCookie, userController.validateAddRoom, roomController.addRoom);
 router.put('/room', roomController.modifyRoom);
 
 //booking
@@ -78,7 +67,7 @@ router.post('/uploadfile', upload.array('images', 3), s3Controller.uploadImage);
 // router.post('/zingmp3/songs', Zingmp3Controller.searchSongs);
 // router.get('/cookie', userController.getCookie);
 // router.post('/cookie', userController.postCookie);
-router.get('/',apiController.show);
+router.get('/', apiController.show);
 
 
 module.exports = router;

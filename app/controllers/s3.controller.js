@@ -1,14 +1,15 @@
 const { v4: uuidv4 } = require('uuid');
 
 class s3Controller {
-    uploadImage(req, res, next) {
+    async uploadImage(req, res, next) {
+        try{
         var validated = true;
         if (!req.files) {
             res.status(403).send({ message: "please upload your file !!" });
             return;
         }
         for (let i = 0; i < req.files.length; i++){
-            if (req.files[i].fieldname != "image" || req.files[i].mimetype == "application/pdf") {
+            if (req.files[i].fieldname != "images" || req.files[i].mimetype == "application/pdf") {
                 console.log(req.files[i]);
                 res.status(403).send({ message: "Uploaded file is not a valid image. Only image files are allowed." });
                 validated = false;
@@ -18,10 +19,11 @@ class s3Controller {
         
         if (!validated) return;
 
-        const arr = [];
+        var result = [];
+        var count = 0;
 
-        req.files.forEach((file) => {
-            var arr = req.files.originalname.split('.');
+        for (let i = 0; i < req.files.length; i++){
+            var arr = req.files[i].originalname.split('.');
             var extension = arr[arr.length - 1];
             const AWS = require('aws-sdk');
 
@@ -37,25 +39,29 @@ class s3Controller {
             // file name of file needed to upload
             const fileName = uuidv4() + '.' + extension;
 
-            const uploadFile = () => {
+            const uploadFile = new Promise((resolve, reject) => {
                 const params = {
                     Bucket: AWS_BUCKET_NAME, // bucket name
                     Key: fileName, // file will be saved as bucket name/fileName
-                    Body: req.files.buffer
+                    Body: req.files[i].buffer
                 };
-                s3.upload(params, function (s3Err, data) {
+                s3.upload(params, (s3Err, data) => {
                     if (s3Err) {
-                        res.status(403).send(s3Err);
+                        reject(false);
                         return;
                     }
-                    arr.push(data.Location);
+                    resolve(data.Location);
+                    count++;
                 });
-            };
+            });
 
-            uploadFile();
-        })
-
-        res.send(arr);
+            const res = await uploadFile;
+            result.push(res);
+        }
+        res.status(200).send(result);
+        }catch{
+            res.status(403).send({message : "cannot upload your image to server"});
+        }
     }
 }
 
