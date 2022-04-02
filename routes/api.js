@@ -45,6 +45,7 @@ router.get('/user', userController.validateTokenCookie, userController.getUser);
 
 //room
 router.get('/room', roomController.getRoom);
+router.get('/all-rooms', roomController.getAllRooms);
 router.post('/room', userController.validateTokenCookie, userController.validateAddRoom, upload.array('images', 3), roomController.addRoom);
 router.put('/room',  roomController.modifyRoom);
 
