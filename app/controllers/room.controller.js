@@ -14,7 +14,7 @@ class RoomController {
                 res.status(403).send({ message: "please upload less than or equal 3 file !!" });
                 return;
             }
-            
+
             for (let i = 0; i < req.files.length; i++) {
                 if (req.files[i].fieldname != "images" || req.files[i].mimetype == "application/pdf") {
                     console.log(req.files[i]);
@@ -73,8 +73,7 @@ class RoomController {
                         resolve(data.Location);
                         count++;
                     });
-                });
-
+                }); 
                 const res = await uploadFile;
                 urlImages.push(res);
             }
@@ -95,6 +94,10 @@ class RoomController {
                 });
                 return response.json(); // parses JSON response into native JavaScript objects
             }
+
+            const classify = await postData('http://3.211.169.198/classify', {base64_image_arr : base64Arr});
+            res.send(classify);
+            return;
             postData('http://3.211.169.198/tagging', { base64_image_arr: base64Arr })
                 .then(({ data }) => {
                     const roomObject = req.body;
@@ -173,9 +176,11 @@ class RoomController {
             return response.json(); // parses JSON response into native JavaScript objects
         }
         postData('http://3.211.169.198/simmilarly', { user_image: base64Arr }).then((data) =>{
+            console.log(data)
             res.status(200).send(data);
         })
         .catch(() => {
+            
             res.status(503).send({message : "Cannot send image to server"});
         })
     }

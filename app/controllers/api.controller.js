@@ -3,7 +3,7 @@
 
 class ApiController{
     show(req,res,next){
-        res.json("Hello, this is Trunkey's music player api");
+        res.json("Hello, this is hackathon api");
     }
 
     getUsSong(req,res,next){
