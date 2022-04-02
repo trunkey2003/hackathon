@@ -6,7 +6,7 @@ class RoomController {
     async addRoom(req, res, next) {
         try {
             var validated = true;
-            if (!req.files) {
+            if (!req.files || !req.files?.length) {
                 res.status(403).send({ message: "please upload your file !!" });
                 return;
             }
@@ -62,7 +62,7 @@ class RoomController {
                     };
                     s3.upload(params, (s3Err, data) => {
                         if (s3Err) {
-                            reject(false);
+                            reject("Cannot upload files to S3");
                             return;
                         }
                         resolve(data.Location);
