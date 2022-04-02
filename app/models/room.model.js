@@ -8,6 +8,7 @@ const room = new Schema({
     description: {type: String, required: true},
     price: {type: Number, required: true},
     address: {type: String, required: true},
+    area: {type: Number, required: true},
     keyword: {type: Array}
 });
 

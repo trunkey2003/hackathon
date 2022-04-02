@@ -6,10 +6,9 @@ var jwt = require('jsonwebtoken');
 
 class UserController {
     //get 1 user from user or admin
-    // async getUser(req, res, next) {
-    //     const songCount = await userSong.count({ userid: res.locals.id });
-    //     user.findOneAndUpdate({ userid: res.locals.id }, { songCount: songCount }, { returnOriginal: false }).then((data) => { data.Phone = undefined; data.Email = undefined; data.password = undefined; res.send(data) });
-    // }
+    async getUser(req, res, next) {
+        res.send(res.locals);
+    }
 
     // getUserNoAuth(req, res, next) {
     //     user.find({ userid: res.locals.id })
@@ -52,13 +51,13 @@ class UserController {
         user.findOne({ user_name: req.body.user_name })
             .then(async (user) => {
                 const valid = await bcrypt.compare(req.body.password, user.password);
-                if (valid) { res.locals.user_id = user._id; res.locals.role = user.role; next(); } else { res.status(403).send({ status: false, message: `Wrong Username or password` }) }
+                if (valid) { res.locals.user_id = user._id; res.locals.role = user.role; res.locals.user_name = user.user_name; next(); } else { res.status(403).send({ status: false, message: `Wrong Username or password` }) }
             })
             .catch(() => { res.status(409).send({ status: false, message: `Wrong Username or password` }) });
     }
 
     setToken(req, res, next) {
-        const user = { id: res.locals.user_id, role: res.locals.role };
+        const user = res.locals;
         jwt.sign(user, process.env.TOKEN_SECRET_KEY, (err, token) => {
             if (err) {
                 res.status(403).send("Cannot Set Token");
@@ -69,10 +68,20 @@ class UserController {
         });
     }
 
+    setTokenCookie(req, res, next) {
+        res.cookie('token', res.locals.token, {
+            sameSite: 'none',
+            secure: (process.env.DEV_ENV) ? false : true,
+            httpOnly: true,
+            maxAge: 3600000 * 24 * 7,
+        }).status(200).send({user_id : res.locals.user_id, user_name: res.locals.user_name, role: res.locals.role})
+    }
+
     validateTokenCookie(req, res, next) {
         jwt.verify(req.cookies.token, process.env.TOKEN_SECRET_KEY, (err, user) => {
             if (err) res.status(403).send("Invalid Token");
             res.locals.user_id = user.id;
+            res.locals.user_name = user.user_name;
             res.locals.role = user.role;
             next();
         })
@@ -86,14 +95,6 @@ class UserController {
         next();
     }
 
-    setTokenCookie(req, res, next) {
-        res.cookie('token', res.locals.token, {
-            sameSite: 'none',
-            secure: (process.env.DEV_ENV) ? false : true,
-            httpOnly: true,
-            maxAge: 3600000 * 24 * 7,
-        }).status(200).send({ username: res.locals.username })
-    }
 
     getUserSongs(req, res, next) {
         userSong.find({ userid: res.locals.id })

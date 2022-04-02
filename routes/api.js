@@ -1,18 +1,58 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+
+const upload = multer({
+  limits: {
+    fileSize: 8 * 1024 * 1024,
+  },
+  fileFilter: function(_req, file, cb){
+    checkFileType(file, cb);
+  }
+});
+
+function checkFileType(files, cb){
+  var validated = true;
+
+  for (let i = 0; i < files.length; i++){
+    var arr = files[i].originalname.split('.');
+    var extension = arr[arr.length - 1];
+    // Allowed ext
+    const filetypes = ['jpeg','jpg','png','gif','webp'];
+  
+    // Check ext == image types in arr 
+    filetypes.forEach((type) => {
+      if (extension != type) validated = false;
+    })
+    if (!validated) {
+      cb('Error: Images Only!');
+      return;
+    }
+  };
+  
+  
+
+  if(validated){
+    return cb(null,true);
+  } else {
+    cb('Error: Images Only!');
+  }
+}
+
 
 const apiController = require('../app/controllers/api.controller');
 
 const userController = require('../app/controllers/user.controller');
 const roomController = require('../app/controllers/room.controller');
 const bookingController = require('../app/controllers/booking.controller');
+const s3Controller = require('../app/controllers/s3.controller');
 // const Zingmp3Controller = require('../app/controllers/zingmp3.controller');
 
 //user
-router.post('/user/signup/checkusername', userController.checkUserName);
 router.post('/user/signup', userController.addUser);
 router.get('/user/signout', userController.clearCookie);
 router.post('/user/signin', userController.validateLogin, userController.setToken, userController.setTokenCookie);
+router.get('/user', userController.validateTokenCookie, userController.getUser);
 
 //room
 router.get('/room', roomController.getRoom);
@@ -22,6 +62,9 @@ router.put('/room', roomController.modifyRoom);
 //booking
 router.get('/booking', bookingController.getBooking);
 router.post('/booking', bookingController.addBooking);
+
+//upload file
+router.post('/uploadfile', upload.array('images', 3), s3Controller.uploadImage);
 
 /* GET users listing. */
 // router.get('/user/:username/songs', userController.validateTokenCookie ,userController.validateUser ,userController.getUserSongs);
