@@ -10,6 +10,11 @@ class RoomController {
                 res.status(403).send({ message: "please upload your file !!" });
                 return;
             }
+            if (req.files.length > 3){
+                res.status(403).send({ message: "please upload less than or equal 3 file !!" });
+                return;
+            }
+            
             for (let i = 0; i < req.files.length; i++) {
                 if (req.files[i].fieldname != "images" || req.files[i].mimetype == "application/pdf") {
                     console.log(req.files[i]);
