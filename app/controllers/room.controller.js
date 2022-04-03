@@ -10,7 +10,7 @@ class RoomController {
                 res.status(403).send({ message: "please upload your file !!" });
                 return;
             }
-            if (req.files.length > 3){
+            if (req.files.length > 3) {
                 res.status(403).send({ message: "please upload less than or equal 3 file !!" });
                 return;
             }
@@ -57,6 +57,13 @@ class RoomController {
                     return btoa(binary);
                 }
                 base64Arr.push(_arrayBufferToBase64(req.files[i].buffer));
+
+                const classify = await postData('http://3.211.169.198/classify', { base64_image_arr: base64Arr });
+
+                if (!classify.data[0]) {
+                    res.status(403).send({message : "Ảnh quá mờ hoặc ảnh không liên quan đến phòng"});
+                    return;
+                }
                 // base64Arr.push(arrayBufferToBase64(req.files[i].buffer));
 
                 const uploadFile = new Promise((resolve, reject) => {
@@ -73,7 +80,7 @@ class RoomController {
                         resolve(data.Location);
                         count++;
                     });
-                }); 
+                });
                 const res = await uploadFile;
                 urlImages.push(res);
             }
@@ -95,9 +102,7 @@ class RoomController {
                 return response.json(); // parses JSON response into native JavaScript objects
             }
 
-            const classify = await postData('http://3.211.169.198/classify', {base64_image_arr : base64Arr});
-            res.send(classify);
-            return;
+
             postData('http://3.211.169.198/tagging', { base64_image_arr: base64Arr })
                 .then(({ data }) => {
                     const roomObject = req.body;
@@ -142,7 +147,7 @@ class RoomController {
             )
     }
 
-    userUpload(req, res){
+    userUpload(req, res) {
         if (!req.files) {
             res.status(403).send({ message: "please upload your file !!" });
             return;
@@ -175,14 +180,14 @@ class RoomController {
             });
             return response.json(); // parses JSON response into native JavaScript objects
         }
-        postData('http://3.211.169.198/simmilarly', { user_image: base64Arr }).then((data) =>{
+        postData('http://3.211.169.198/simmilarly', { user_image: base64Arr }).then((data) => {
             console.log(data)
             res.status(200).send(data);
         })
-        .catch(() => {
-            
-            res.status(503).send({message : "Cannot send image to server"});
-        })
+            .catch(() => {
+
+                res.status(503).send({ message: "Cannot send image to server" });
+            })
     }
 
     modifyRoom(req, res) {
