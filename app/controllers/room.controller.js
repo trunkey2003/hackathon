@@ -58,12 +58,13 @@ class RoomController {
                 }
                 base64Arr.push(_arrayBufferToBase64(req.files[i].buffer));
 
-                const classify = await postData('http://3.211.169.198/classify', { base64_image_arr: base64Arr });
+                // const classify = await postData('http://3.211.169.198/classify', { base64_image_arr: base64Arr });
+        
+                // if (!classify.data[0]) {
+                //     res.status(403).send({message : "Ảnh quá mờ hoặc ảnh không liên quan đến phòng"});
+                //     return;
+                // }
 
-                if (!classify.data[0]) {
-                    res.status(403).send({message : "Ảnh quá mờ hoặc ảnh không liên quan đến phòng"});
-                    return;
-                }
                 // base64Arr.push(arrayBufferToBase64(req.files[i].buffer));
 
                 const uploadFile = new Promise((resolve, reject) => {
@@ -108,6 +109,7 @@ class RoomController {
                     const roomObject = req.body;
                     roomObject.picture = urlImages;
                     roomObject.keyword = data;
+                    roomObject.landlord_id = res.locals.user_id;
                     console.log(roomObject);
                     const newRoom = new room(roomObject);
                     newRoom.save()
@@ -119,7 +121,7 @@ class RoomController {
 
         } catch (e) {
             console.log(e);
-            res.status(403).json(JSON.stringify(e));
+            res.status(403).json('cannot add room');
         }
     }
 

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const room = new Schema({
-    landlord_id: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+    landlord_id: {type: Schema.Types.ObjectId, ref: 'User', required: true, default: "6247f62f1b50ec811b509b04"},
     title: {type: String, required: true},
     picture: {type: Array, required: true},
     description: {type: String, required: true},
